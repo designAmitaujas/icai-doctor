@@ -82,3 +82,10 @@ export const videoCreateSchema = z.object({
 export const videoUpdateSchema = z.object({
   videoPath: z.string().min(1),
 });
+
+export const eventAttachmentSchema = z.object({
+  eventId: z.string().min(1),
+  attendanceSheetPath: z.string().min(1),
+  annexurePath: z.string().min(1),
+  eventImagePath: z.string().min(1),
+});

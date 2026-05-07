@@ -11,6 +11,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { generateRandomId } from "../utils.js";
+import { EventAttachment } from "./EventAttachment.js";
 import { User } from "./User.js";
 import { Video } from "./Video.js";
 
@@ -107,6 +108,9 @@ export class Event extends BaseEntity {
 
   @OneToMany(() => Video, (video) => video.event)
   videos?: Video[];
+
+  @OneToMany(() => EventAttachment, (attachment) => attachment.event)
+  attachments?: EventAttachment[];
 
   @CreateDateColumn()
   createdAt!: Date;

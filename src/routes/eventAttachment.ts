@@ -1,24 +1,25 @@
 import { Router } from "express";
 import { Event } from "../entities/Event.js";
-import { Video } from "../entities/Video.js";
+import { EventAttachment } from "../entities/EventAttachment.js";
 import { validateUserSession } from "../utils.js";
-import { videoCreateSchema, videoUpdateSchema } from "../validation.js";
+import { eventAttachmentSchema } from "../validation.js";
 
 const router = Router();
 
 router.get("/event/:eventId", async (req, res) => {
   try {
-    const user = await validateUserSession(
-      req.headers.authorization?.split(" ")[1] || "",
-    );
-    if (!user || !user.id)
-      return res.status(401).json({ success: false, msg: "Unauthorized" });
+    const authHeader = req.headers.authorization;
+    const user = await validateUserSession(authHeader?.split(" ")[1] || "");
 
-    const videos = await Video.find({
-      where: { event: { id: req.params.eventId } },
+    if (!user || !user.id) {
+      return res.status(401).json({ success: false, msg: "Unauthorized" });
+    }
+
+    const attachments = await EventAttachment.find({
+      where: { event: { id: req.params.eventId, createdBy: { id: user.id } } },
     });
 
-    return res.json({ success: true, data: videos });
+    return res.json({ success: true, data: attachments });
   } catch (error: any) {
     return res.status(500).json({ success: false, msg: error.message });
   }
@@ -35,15 +36,15 @@ router.get("/", async (req, res) => {
         .json({ success: false, msg: "Unauthorized", data: null });
     }
 
-    const videos = await Video.find({
+    const attachments = await EventAttachment.find({
       where: { event: { createdBy: { id: user.id } } },
       relations: ["event"],
     });
 
     return res.json({
       success: true,
-      msg: "Videos fetched successfully",
-      data: videos,
+      msg: "Attachments fetched",
+      data: attachments,
     });
   } catch (error: any) {
     return res
@@ -63,17 +64,20 @@ router.get("/:id", async (req, res) => {
         .json({ success: false, msg: "Unauthorized", data: null });
     }
 
-    const video = await Video.findOne({
+    const attachment = await EventAttachment.findOne({
       where: { id: req.params.id, event: { createdBy: { id: user.id } } },
     });
 
-    if (!video) {
+    if (!attachment)
       return res
         .status(404)
-        .json({ success: false, msg: "Video not found", data: null });
-    }
+        .json({ success: false, msg: "Not found", data: null });
 
-    return res.json({ success: true, msg: "Video found", data: video });
+    return res.json({
+      success: true,
+      msg: "Attachment found",
+      data: attachment,
+    });
   } catch (error: any) {
     return res
       .status(500)
@@ -82,7 +86,7 @@ router.get("/:id", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  const validation = videoCreateSchema.safeParse(req.body);
+  const validation = eventAttachmentSchema.safeParse(req.body);
   if (!validation.success) {
     return res.status(400).json({
       success: false,
@@ -109,14 +113,12 @@ router.post("/", async (req, res) => {
         .status(404)
         .json({ success: false, msg: "Event not found", data: null });
 
-    const videoEntities = validation.data.filenames.map((name: string) =>
-      Video.create({ videoPath: name, event: event }),
-    );
+    const attachment = EventAttachment.create({ ...validation.data, event });
+    await attachment.save();
 
-    await Video.save(videoEntities);
     return res
       .status(201)
-      .json({ success: true, msg: "Videos created", data: videoEntities });
+      .json({ success: true, msg: "Attachment created", data: attachment });
   } catch (error: any) {
     return res
       .status(500)
@@ -125,7 +127,7 @@ router.post("/", async (req, res) => {
 });
 
 router.post("/:id", async (req, res) => {
-  const validation = videoUpdateSchema.safeParse(req.body);
+  const validation = eventAttachmentSchema.safeParse(req.body);
   if (!validation.success) {
     return res.status(400).json({
       success: false,
@@ -138,21 +140,25 @@ router.post("/:id", async (req, res) => {
     const authHeader = req.headers.authorization;
     const user = await validateUserSession(authHeader?.split(" ")[1] || "");
 
-    const video = await Video.findOne({
+    const attachment = await EventAttachment.findOne({
       where: { id: req.params.id },
       relations: ["event", "event.createdBy"],
     });
 
-    if (!video || video.event.createdBy.id !== user?.id) {
+    if (!attachment || attachment.event.createdBy.id !== user?.id) {
       return res
         .status(403)
         .json({ success: false, msg: "Forbidden", data: null });
     }
 
-    video.videoPath = validation.data.videoPath;
-    await video.save();
+    Object.assign(attachment, validation.data);
+    await attachment.save();
 
-    return res.json({ success: true, msg: "Video updated", data: video });
+    return res.json({
+      success: true,
+      msg: "Attachment updated",
+      data: attachment,
+    });
   } catch (error: any) {
     return res
       .status(500)
@@ -165,19 +171,19 @@ router.delete("/:id", async (req, res) => {
     const authHeader = req.headers.authorization;
     const user = await validateUserSession(authHeader?.split(" ")[1] || "");
 
-    const video = await Video.findOne({
+    const attachment = await EventAttachment.findOne({
       where: { id: req.params.id },
       relations: ["event", "event.createdBy"],
     });
 
-    if (!video || video.event.createdBy.id !== user?.id) {
+    if (!attachment || attachment.event.createdBy.id !== user?.id) {
       return res
         .status(403)
         .json({ success: false, msg: "Forbidden", data: null });
     }
 
-    await video.softRemove();
-    return res.json({ success: true, msg: "Video deleted", data: null });
+    await attachment.softRemove();
+    return res.json({ success: true, msg: "Attachment deleted", data: null });
   } catch (error: any) {
     return res
       .status(500)
