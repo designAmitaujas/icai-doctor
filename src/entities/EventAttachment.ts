@@ -7,6 +7,7 @@ import {
   Entity,
   ManyToOne,
   PrimaryColumn,
+  type Relation,
 } from "typeorm";
 import { generateRandomId } from "../utils.js";
 import { Event } from "./Event.js";
@@ -26,7 +27,7 @@ export class EventAttachment extends BaseEntity {
   eventImagePath!: string;
 
   @ManyToOne(() => Event, (event) => event.attachments, { onDelete: "CASCADE" })
-  event!: Event;
+  event!: Relation<Event>;
 
   @CreateDateColumn()
   createdAt!: Date;

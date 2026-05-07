@@ -8,6 +8,7 @@ import {
   ManyToOne,
   PrimaryColumn,
   UpdateDateColumn,
+  type Relation,
 } from "typeorm";
 import { generateRandomId } from "../utils.js";
 import { Event } from "./Event.js";
@@ -21,7 +22,7 @@ export class Video extends BaseEntity {
   videoPath!: string;
 
   @ManyToOne(() => Event, (event) => event.videos, { onDelete: "CASCADE" })
-  event!: Event;
+  event!: Relation<Event>;
 
   @CreateDateColumn()
   createdAt!: Date;
