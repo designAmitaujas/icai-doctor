@@ -7,6 +7,7 @@ import {
   Entity,
   ManyToOne,
   PrimaryColumn,
+  UpdateDateColumn,
 } from "typeorm";
 import { generateRandomId } from "../utils.js";
 import { Event } from "./Event.js";
@@ -24,6 +25,9 @@ export class Video extends BaseEntity {
 
   @CreateDateColumn()
   createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
 
   @DeleteDateColumn()
   deletedAt?: Date;
