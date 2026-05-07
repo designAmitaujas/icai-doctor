@@ -36,6 +36,9 @@ All API responses follow a standard JSON structure:
   - `email` (string, required, email)
   - `password` (string, required, min 6)
 - **Auth Required:** No
+- **Response Data:**
+  - `token` (string)
+  - `user` (object: `id`, `name`, `email`)
 
 ### Login User
 
@@ -64,6 +67,10 @@ All API responses follow a standard JSON structure:
 - **Body:**
   - `name` (string, required, min 2)
 - **Auth Required:** Yes
+- **Response Data:**
+  - `id` (string)
+  - `name` (string)
+  - `email` (string)
 
 ### Update Password
 
@@ -104,6 +111,7 @@ All API responses follow a standard JSON structure:
   - `payeeName` (string, required)
   - `ifscCode` (string, required)
 - **Auth Required:** Yes
+- **Response Data:** The created bank detail object.
 
 ### Update Bank Detail
 
@@ -111,6 +119,7 @@ All API responses follow a standard JSON structure:
 - **Path:** `/:id`
 - **Body:** Same as Create
 - **Auth Required:** Yes
+- **Response Data:** The updated bank detail object.
 
 ### Delete Bank Detail
 
