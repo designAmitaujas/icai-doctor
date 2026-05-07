@@ -26,10 +26,14 @@ router.post("/", upload.single("file"), async (req, res) => {
     const authHeader = req.headers.authorization;
     const user = await validateUserSession(authHeader?.split(" ")[1] || "");
     if (!user)
-      return res.status(401).json({ success: false, msg: "Unauthorized" });
+      return res
+        .status(401)
+        .json({ success: false, msg: "Unauthorized", data: null });
 
     if (!req.file) {
-      return res.status(400).json({ success: false, msg: "No file uploaded" });
+      return res
+        .status(400)
+        .json({ success: false, msg: "No file uploaded", data: null });
     }
 
     return res.json({
@@ -38,7 +42,9 @@ router.post("/", upload.single("file"), async (req, res) => {
       data: { filename: req.file.filename },
     });
   } catch (error: any) {
-    return res.status(500).json({ success: false, msg: error.message });
+    return res
+      .status(500)
+      .json({ success: false, msg: error.message, data: null });
   }
 });
 

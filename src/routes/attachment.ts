@@ -12,16 +12,24 @@ router.get("/event/:eventId", async (req, res) => {
     const user = await validateUserSession(authHeader?.split(" ")[1] || "");
 
     if (!user || !user.id) {
-      return res.status(401).json({ success: false, msg: "Unauthorized" });
+      return res
+        .status(401)
+        .json({ success: false, msg: "Unauthorized", data: null });
     }
 
     const attachments = await EventAttachment.find({
       where: { event: { id: req.params.eventId, createdBy: { id: user.id } } },
     });
 
-    return res.json({ success: true, data: attachments });
+    return res.json({
+      success: true,
+      msg: "Attachments fetched",
+      data: attachments,
+    });
   } catch (error: any) {
-    return res.status(500).json({ success: false, msg: error.message });
+    return res
+      .status(500)
+      .json({ success: false, msg: error.message, data: null });
   }
 });
 

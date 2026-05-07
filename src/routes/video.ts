@@ -12,15 +12,19 @@ router.get("/event/:eventId", async (req, res) => {
       req.headers.authorization?.split(" ")[1] || "",
     );
     if (!user || !user.id)
-      return res.status(401).json({ success: false, msg: "Unauthorized" });
+      return res
+        .status(401)
+        .json({ success: false, msg: "Unauthorized", data: null });
 
     const videos = await Video.find({
       where: { event: { id: req.params.eventId } },
     });
 
-    return res.json({ success: true, data: videos });
+    return res.json({ success: true, msg: "Videos fetched", data: videos });
   } catch (error: any) {
-    return res.status(500).json({ success: false, msg: error.message });
+    return res
+      .status(500)
+      .json({ success: false, msg: error.message, data: null });
   }
 });
 
