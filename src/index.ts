@@ -5,6 +5,7 @@ import cors from "cors";
 import express from "express";
 import { AppDataSource } from "./dataSource.js";
 import { PORT } from "./env.js";
+import attachmentRouter from "./routes/attachment.js";
 import authRouter from "./routes/auth.js";
 import bankRouter from "./routes/bank.js";
 import eventRouter from "./routes/event.js";
@@ -24,6 +25,7 @@ import videoRouter from "./routes/video.js";
   app.use("/api/event", eventRouter);
   app.use("/api/upload", uploadRouter);
   app.use("/api/video", videoRouter);
+  app.use("/api/attachment", attachmentRouter);
 
   app.use("/uploads", express.static("uploads"));
 
